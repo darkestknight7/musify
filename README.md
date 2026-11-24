@@ -5,6 +5,11 @@
   <p>Spotify-inspired desktop &amp; mobile UI • SimpMusic features • Blue, Magenta &amp; Black theme</p>
 
   <p>
+    <a href="https://bd6e72082acca4.app.lhr.life/">
+      <img src="https://img.shields.io/badge/Live%20Demo-Open%20Musify-10b981?style=for-the-badge" alt="Live Demo" />
+    </a>
+  </p>
+  <p>
     <a href="https://github.com/darkestknight7/musify/actions/workflows/build-android.yml">
       <img src="https://github.com/darkestknight7/musify/actions/workflows/build-android.yml/badge.svg" alt="Build Status" />
     </a>
@@ -15,6 +20,7 @@
       <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
     </a>
   </p>
+  <p><sub>Live tunnel: <a href="https://bd6e72082acca4.app.lhr.life/">https://bd6e72082acca4.app.lhr.life/</a> (active while host server is online)</sub></p>
 </div>
 
 ---

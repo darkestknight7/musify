@@ -391,8 +391,58 @@ export default function PlayerBar({
   const volumePct = Math.round(volume * 100);
 
   return (
-    <footer className="h-[90px] bg-black px-4 flex items-center justify-between gap-4 border-t border-white/10 select-none z-50">
+    <footer className="bg-black border-t border-white/10 select-none z-50">
       <audio ref={audioRef} {...mediaHandlers} />
+
+      {/* Mobile Mini-Player (< md) */}
+      {currentTrack && (
+        <div
+          onClick={onToggleImmersive}
+          className="md:hidden relative px-3 py-2 flex items-center justify-between gap-3 bg-[#12121e] mx-2 mt-1.5 rounded-xl border border-white/10 shadow-lg cursor-pointer"
+        >
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <img
+              src={currentTrack.thumbnail}
+              alt={currentTrack.title}
+              className="w-10 h-10 rounded-md object-cover flex-shrink-0"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-white truncate">{currentTrack.title}</p>
+              <p className="text-[11px] text-[#a1a1b5] truncate">{currentTrack.artist}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => onToggleLike(currentTrack)}
+              className="p-1.5 text-[#a1a1b5] hover:text-white"
+            >
+              <Heart className={`w-4 h-4 ${isLiked ? 'fill-[#ec4899] text-[#ec4899]' : ''}`} />
+            </button>
+            <button
+              onClick={() => onTogglePlay()}
+              className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#ec4899] text-white flex items-center justify-center"
+            >
+              {isBuffering && isPlaying ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isPlaying ? (
+                <Pause className="w-4 h-4 fill-white" />
+              ) : (
+                <Play className="w-4 h-4 fill-white ml-0.5" />
+              )}
+            </button>
+          </div>
+          {/* Thin bottom progress bar */}
+          <div className="absolute left-3 right-3 bottom-0 h-[2px] bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-[#3b82f6] to-[#ec4899]"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Desktop & Tablet Player Bar (>= md) */}
+      <div className="hidden md:flex h-[90px] px-4 items-center justify-between gap-4">
 
       {/* Left: Track Info + Offline / Download */}
       <div className="w-[30%] min-w-[200px] flex items-center gap-3">
@@ -764,6 +814,7 @@ export default function PlayerBar({
             <Download className="w-4 h-4" />
           </a>
         )}
+      </div>
       </div>
     </footer>
   );

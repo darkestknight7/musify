@@ -1,5 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { X, Film, Music, Mic2, Download, CheckCircle2, Loader2, Sparkles, Activity } from 'lucide-react';
+import {
+  X,
+  Film,
+  Music,
+  Mic2,
+  Download,
+  CheckCircle2,
+  Loader2,
+  Sparkles,
+  Activity,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+} from 'lucide-react';
 import { fetchSyncedLyrics, parseLrc, getDownloadUrl, formatTime } from '../api';
 
 export default function ImmersivePlayer({
@@ -7,6 +21,9 @@ export default function ImmersivePlayer({
   onClose,
   currentTrack,
   isPlaying,
+  onTogglePlay,
+  onNext,
+  onPrev,
   currentTime = 0,
   duration = 0,
   onSeekTo,
@@ -180,7 +197,7 @@ export default function ImmersivePlayer({
   };
 
   return (
-    <div className="fixed inset-0 bottom-[90px] z-40 bg-[#07070c] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 md:bottom-[90px] z-50 md:z-40 bg-[#07070c] flex flex-col overflow-y-auto md:overflow-hidden">
       {/* Ambient Blurred Background */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-30 blur-3xl scale-110 pointer-events-none"
@@ -396,6 +413,37 @@ export default function ImmersivePlayer({
           </div>
         </div>
       )}
+
+      {/* Mobile Fullscreen Playback Controls (< md) */}
+      <div className="md:hidden relative z-10 px-6 pb-6 pt-2 space-y-3 bg-black/50 backdrop-blur-md border-t border-white/10">
+        <div className="flex items-center gap-2 text-[11px] text-[#a1a1b5] tabular-nums">
+          <span className="w-9 text-right">{formatTime(currentTime)}</span>
+          <input
+            type="range"
+            min={0}
+            max={duration || 100}
+            step={0.5}
+            value={currentTime}
+            onChange={(e) => onSeekTo && onSeekTo(parseFloat(e.target.value))}
+            className="flex-1 accent-[#ec4899]"
+          />
+          <span className="w-9">{formatTime(duration)}</span>
+        </div>
+        <div className="flex items-center justify-center gap-8">
+          <button onClick={onPrev} className="p-2 text-white">
+            <SkipBack className="w-6 h-6 fill-white" />
+          </button>
+          <button
+            onClick={() => onTogglePlay && onTogglePlay()}
+            className="w-12 h-12 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#ec4899] text-white flex items-center justify-center shadow-lg"
+          >
+            {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white ml-0.5" />}
+          </button>
+          <button onClick={onNext} className="p-2 text-white">
+            <SkipForward className="w-6 h-6 fill-white" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

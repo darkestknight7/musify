@@ -1,0 +1,9 @@
+{
+  "appId": "com.darkestknight7.musify",
+  "appName": "Musify",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  }
+}

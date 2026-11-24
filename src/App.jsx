@@ -3,10 +3,12 @@ import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import PlayerBar from './components/PlayerBar';
 import RightPanel from './components/RightPanel';
+import MobileNav from './components/MobileNav';
 import ImmersivePlayer from './components/ImmersivePlayer';
 import ListeningReceiptModal from './components/ListeningReceiptModal';
 import HomeView from './views/HomeView';
 import SearchView from './views/SearchView';
+import LibraryView from './views/LibraryView';
 import CollectionView from './views/CollectionView';
 import ArtistView from './views/ArtistView';
 import { fetchAlbum, fetchPlaylist, fetchWatchNext } from './api';
@@ -361,6 +363,18 @@ export default function App() {
               />
             )}
 
+            {activeView.type === 'library' && (
+              <LibraryView
+                likedSongs={likedSongs}
+                offlineTracks={offlineTracks}
+                playlists={playlists}
+                savedItems={savedItems}
+                onNavigate={navigate}
+                onCreatePlaylist={() => setShowCreateModal(true)}
+                onDeletePlaylist={handleDeletePlaylist}
+              />
+            )}
+
             {(activeView.type === 'liked' ||
               activeView.type === 'offline' ||
               activeView.type === 'custom-playlist' ||
@@ -428,6 +442,9 @@ export default function App() {
         onClose={() => setImmersiveOpen(false)}
         currentTrack={currentTrack}
         isPlaying={isPlaying}
+        onTogglePlay={(force) => setIsPlaying((p) => (typeof force === 'boolean' ? force : !p))}
+        onNext={handleNext}
+        onPrev={handlePrev}
         currentTime={currentTime}
         duration={duration}
         onSeekTo={(sec) => seekFnRef.current && seekFnRef.current(sec)}
@@ -484,6 +501,9 @@ export default function App() {
           setTimeout(() => setToast(null), 3000);
         }}
       />
+
+      {/* Mobile Bottom Navigation (< md) */}
+      <MobileNav activeView={activeView} onNavigate={navigate} />
 
       {/* SponsorBlock Toast */}
       {toast && (

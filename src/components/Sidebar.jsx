@@ -17,7 +17,7 @@ export default function Sidebar({
   const showSaved = libraryFilter === 'all' || libraryFilter === 'saved';
 
   return (
-    <aside className="w-[280px] xl:w-[300px] flex-shrink-0 flex flex-col gap-2 h-full select-none">
+    <aside className="hidden md:flex w-[230px] lg:w-[280px] xl:w-[300px] flex-shrink-0 flex-col gap-2 h-full select-none">
       {/* Top Navigation Card */}
       <div className="bg-[#0d0d14] border border-white/5 rounded-lg px-3 py-3 flex flex-col gap-1">
         {/* Cool New Musify Logo: Electric Blue-to-Magenta Sonic Prism */}

@@ -49,11 +49,10 @@ export default function Sidebar({
 
         <button
           onClick={() => onNavigate({ type: 'home' })}
-          className={`flex items-center gap-5 px-3 py-2.5 rounded-md font-bold text-[15px] transition-colors ${
-            activeView.type === 'home'
-              ? 'text-white bg-white/5'
-              : 'text-[#a1a1b5] hover:text-white'
-          }`}
+          className={`flex items-center gap-5 px-3 py-2.5 rounded-md font-bold text-[15px] transition-colors ${activeView.type === 'home'
+            ? 'text-white bg-white/5'
+            : 'text-[#a1a1b5] hover:text-white'
+            }`}
         >
           <Home className={`w-6 h-6 ${activeView.type === 'home' ? 'text-[#3b82f6]' : ''}`} strokeWidth={activeView.type === 'home' ? 2.5 : 2} />
           <span>Home</span>
@@ -61,11 +60,10 @@ export default function Sidebar({
 
         <button
           onClick={() => onNavigate({ type: 'search' })}
-          className={`flex items-center gap-5 px-3 py-2.5 rounded-md font-bold text-[15px] transition-colors ${
-            activeView.type === 'search'
-              ? 'text-white bg-white/5'
-              : 'text-[#a1a1b5] hover:text-white'
-          }`}
+          className={`flex items-center gap-5 px-3 py-2.5 rounded-md font-bold text-[15px] transition-colors ${activeView.type === 'search'
+            ? 'text-white bg-white/5'
+            : 'text-[#a1a1b5] hover:text-white'
+            }`}
         >
           <Search className={`w-6 h-6 ${activeView.type === 'search' ? 'text-[#ec4899]' : ''}`} strokeWidth={activeView.type === 'search' ? 2.5 : 2} />
           <span>Search</span>
@@ -101,11 +99,10 @@ export default function Sidebar({
             <button
               key={pill.id}
               onClick={() => setLibraryFilter(libraryFilter === pill.id ? 'all' : pill.id)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                libraryFilter === pill.id
-                  ? 'bg-gradient-to-r from-[#3b82f6] to-[#ec4899] text-white'
-                  : 'bg-[#1a1a28] text-[#e2e2f0] hover:bg-[#252538]'
-              }`}
+              className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${libraryFilter === pill.id
+                ? 'bg-gradient-to-r from-[#3b82f6] to-[#ec4899] text-white'
+                : 'bg-[#1a1a28] text-[#e2e2f0] hover:bg-[#252538]'
+                }`}
             >
               {pill.label}
             </button>
@@ -118,9 +115,8 @@ export default function Sidebar({
           {showPlaylists && (
             <button
               onClick={() => onNavigate({ type: 'liked' })}
-              className={`w-full flex items-center gap-3 p-2 rounded-md text-left transition-colors group ${
-                activeView.type === 'liked' ? 'bg-[#1a1a2a]' : 'hover:bg-white/5'
-              }`}
+              className={`w-full flex items-center gap-3 p-2 rounded-md text-left transition-colors group ${activeView.type === 'liked' ? 'bg-[#1a1a2a]' : 'hover:bg-white/5'
+                }`}
             >
               <div className="w-12 h-12 rounded flex-shrink-0 bg-gradient-to-br from-[#2563eb] via-[#9333ea] to-[#ec4899] flex items-center justify-center shadow">
                 <Heart className="w-5 h-5 fill-white text-white" />
@@ -140,9 +136,8 @@ export default function Sidebar({
           {showPlaylists && (
             <button
               onClick={() => onNavigate({ type: 'offline' })}
-              className={`w-full flex items-center gap-3 p-2 rounded-md text-left transition-colors group ${
-                activeView.type === 'offline' ? 'bg-[#1a1a2a]' : 'hover:bg-white/5'
-              }`}
+              className={`w-full flex items-center gap-3 p-2 rounded-md text-left transition-colors group ${activeView.type === 'offline' ? 'bg-[#1a1a2a]' : 'hover:bg-white/5'
+                }`}
             >
               <div className="w-12 h-12 rounded flex-shrink-0 bg-gradient-to-br from-[#0284c7] to-[#3b82f6] flex items-center justify-center shadow">
                 <Download className="w-5 h-5 text-white" />
@@ -165,9 +160,8 @@ export default function Sidebar({
               <div
                 key={pl.id}
                 onClick={() => onNavigate({ type: 'custom-playlist', id: pl.id })}
-                className={`w-full flex items-center gap-3 p-2 rounded-md text-left cursor-pointer transition-colors group ${
-                  isActive ? 'bg-[#1a1a2a]' : 'hover:bg-white/5'
-                }`}
+                className={`w-full flex items-center gap-3 p-2 rounded-md text-left cursor-pointer transition-colors group ${isActive ? 'bg-[#1a1a2a]' : 'hover:bg-white/5'
+                  }`}
               >
                 <div className="w-12 h-12 rounded flex-shrink-0 bg-[#1c1c2a] overflow-hidden flex items-center justify-center">
                   {pl.tracks[0]?.thumbnail ? (
@@ -206,16 +200,14 @@ export default function Sidebar({
               <button
                 key={`${item.type}-${item.id}`}
                 onClick={() => onNavigate({ type: item.type, id: item.id })}
-                className={`w-full flex items-center gap-3 p-2 rounded-md text-left transition-colors ${
-                  isActive ? 'bg-[#1a1a2a]' : 'hover:bg-white/5'
-                }`}
+                className={`w-full flex items-center gap-3 p-2 rounded-md text-left transition-colors ${isActive ? 'bg-[#1a1a2a]' : 'hover:bg-white/5'
+                  }`}
               >
                 <img
                   src={item.thumbnail}
                   alt={item.title}
-                  className={`w-12 h-12 flex-shrink-0 object-cover bg-[#1c1c2a] ${
-                    item.type === 'artist' ? 'rounded-full' : 'rounded'
-                  }`}
+                  className={`w-12 h-12 flex-shrink-0 object-cover bg-[#1c1c2a] ${item.type === 'artist' ? 'rounded-full' : 'rounded'
+                    }`}
                 />
                 <div className="min-w-0 flex-1">
                   <p className={`text-[15px] font-medium truncate ${isActive ? 'text-[#ec4899]' : 'text-white'}`}>

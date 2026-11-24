@@ -1,0 +1,17 @@
+{
+  "name": "Musify",
+  "short_name": "Musify",
+  "description": "Free, ad-free YouTube Music streaming app with Spotify-style UI, offline downloads, HD video, synced lyrics, and SponsorBlock.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#ec4899",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

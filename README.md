@@ -1,6 +1,6 @@
 # Musify
 
-A free, ad-free cross-platform music & video streaming app powered by YouTube Music, blending a Spotify-style desktop/mobile UI with SimpMusic features in a **Blue, Magenta & Black** theme.
+A free, ad-free cross-platform music & video streaming app powered by YouTube Music, blending a Spotify-style desktop/mobile UI .
 
 **Supported Platforms:** Android • iOS • Windows • macOS • Linux
 

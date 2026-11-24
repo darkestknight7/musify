@@ -1,50 +1,118 @@
-# Musify
+<div align="center">
+  <img src="public/icon.svg" alt="Musify Logo" width="88" height="88" />
+  <h1>Musify</h1>
+  <p><strong>Free, ad-free cross-platform music &amp; video streaming powered by YouTube Music</strong></p>
+  <p>Spotify-inspired desktop &amp; mobile UI • SimpMusic features • Blue, Magenta &amp; Black theme</p>
 
-A free, ad-free cross-platform music & video streaming app powered by YouTube Music, blending a Spotify-style desktop/mobile UI .
-
-**Supported Platforms:** Android • iOS • Windows • macOS • Linux
-
-## Features
-- **100% Free & Ad-Free**: Direct audio & video streaming via `ytmusicapi` and `yt-dlp`.
-- **Cross-Platform UI**: Desktop 3-column layout, Tablet layout, and Phone bottom-nav + Mini-Player.
-- **Free Offline Downloads**: Cache any song in IndexedDB for 100% offline playback, or download the audio file directly.
-- **Highest-Quality Video Playback**: Switch seamlessly between **Song** and **Video HD**.
-- **Real-Time Synced Lyrics**: Time-synced lyrics from LRCLIB (with YouTube Music fallback) with click-to-seek.
-- **Multiple Now Playing Layouts**: Classic Visualizer, Glass Lyrics, SoundCloud-style Waveform, and HD Video.
-- **SponsorBlock Auto-Skip**: Automatically skips non-music intros, outros, and off-topic segments.
-- **Equalizer, Speed & Sleep Timer**: Built-in Web Audio EQ presets (`Flat`, `Bass Boost`, `Pop`, `Rock`, `Vocal`), speed (`0.75x`–`1.5x`), and sleep timer.
-- **Listening Receipt**: View your Music Persona, play count, minutes listened, and recent rotation.
+  <p>
+    <a href="https://github.com/darkestknight7/musify/actions/workflows/build-android.yml">
+      <img src="https://github.com/darkestknight7/musify/actions/workflows/build-android.yml/badge.svg" alt="Build Status" />
+    </a>
+    <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20macOS%20%7C%20Linux-ec4899" alt="Platforms" />
+    <img src="https://img.shields.io/badge/frontend-React%20%2B%20Vite%20%2B%20Tailwind-3b82f6" alt="Frontend" />
+    <img src="https://img.shields.io/badge/backend-FastAPI%20%2B%20ytmusicapi%20%2B%20yt--dlp-a855f7" alt="Backend" />
+    <a href="LICENSE">
+      <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
+    </a>
+  </p>
+</div>
 
 ---
 
-## Run on Every Device
+## Key Features
 
-### Windows
-```powershell
+- **100% Free & Ad-Free Streaming**: Direct audio & video proxying with HTTP Range seeking via `ytmusicapi` and `yt-dlp`.
+- **Cross-Platform Responsive UI**: 3-column desktop/tablet workspace and a dedicated mobile bottom navigation bar + mini-player for phones.
+- **Offline Downloads (IndexedDB + File Export)**: Cache tracks locally in the browser for true offline playback, or download audio files directly to your device.
+- **Song / HD Video Toggle**: Switch seamlessly between audio-only and highest-quality music video playback.
+- **Real-Time Synced Lyrics**: Time-synced LRC lyrics from **LRCLIB** (with YouTube Music fallback) featuring auto-scroll and click-to-seek.
+- **Multiple Now Playing Layouts**: **Classic** (frequency spectrum visualizer), **Glass Lyrics**, **Waveform** (interactive seek bar), and **Video HD**.
+- **SponsorBlock Auto-Skip**: Automatically skips non-music intros, outros, and off-topic segments.
+- **Built-in Equalizer, Speed & Sleep Timer**: Web Audio API EQ presets (`Flat`, `Bass Boost`, `Pop`, `Rock`, `Vocal`), `0.75x`–`1.5x` speed, and sleep timer.
+- **Listening Receipt**: Tracks plays, minutes listened, offline count, and generates your Music Persona receipt.
+- **Installable App (PWA & Capacitor)**: Install directly from Chrome/Edge/Safari on any device, or build a native Android APK / iOS app.
+
+---
+
+## Architecture
+
+| Layer | Stack | Purpose |
+| :--- | :--- | :--- |
+| **Frontend** | React 18, Vite, Tailwind CSS, Lucide Icons | Responsive Spotify-style UI, Web Audio EQ & visualizer, IndexedDB offline cache |
+| **Backend** | FastAPI, Uvicorn, `ytmusicapi`, `yt-dlp`, `httpx` | YouTube Music metadata, LRCLIB synced lyrics, SponsorBlock, Range-supported audio/video proxy |
+| **Mobile** | Capacitor (Android & iOS) + PWA Web Manifest | Native APK builds via GitHub Actions and browser home-screen installation |
+
+---
+
+## Quick Start
+
+### Prerequisites
+- **Python 3.10+**
+- **Node.js 18+**
+
+### 1. Clone & Install
+```bash
+git clone https://github.com/darkestknight7/musify.git
+cd musify
 pip install -r requirements.txt
 npm install
 npm run build
-python server.py
 ```
-Or double-click / run `./start_musify.ps1`, then open **http://127.0.0.1:8000** and click **Install Musify** in Chrome/Edge.
 
-### macOS & Linux
+### 2. Run on Desktop (Windows, macOS, Linux)
+
+- **Windows (PowerShell):**
+  ```powershell
+  .\start_musify.ps1
+  ```
+- **macOS / Linux:**
+  ```bash
+  chmod +x start_musify.sh
+  ./start_musify.sh
+  ```
+- Open **http://127.0.0.1:8000** in Chrome or Edge and click **Install Musify** in the address bar to run it as a standalone desktop app.
+
+---
+
+## Access From Phones & Tablets (Android / iOS)
+
+### Option A: Public HTTPS Link (Works on Any Network / Mobile Data)
+Start Musify with the `-Public` / `--public` flag to generate an instant HTTPS URL for phones and tablets:
+- **Windows:** `.\start_musify.ps1 -Public`
+- **macOS / Linux:** `./start_musify.sh --public`
+
+Open the generated `https://...lhr.life` link on your phone:
+- **Android (Chrome):** Tap `⋮` → **Install app**
+- **iPhone / iPad (Safari):** Tap **Share** → **Add to Home Screen**
+
+### Option B: Native Android APK
+Download the pre-built **`Musify-Android-APK`** (`app-debug.apk`) artifact from the [GitHub Actions](https://github.com/darkestknight7/musify/actions) tab, or sync locally:
 ```bash
-chmod +x start_musify.sh
-./start_musify.sh
+npm run build
+npx cap sync android
 ```
-Open **http://127.0.0.1:8000** in Chrome/Edge/Safari and install as an app.
 
-### Android (Native APK + PWA)
-- **APK**: Download `Musify-Android-APK` (`app-debug.apk`) from the **GitHub Actions** tab, or build locally with:
-  ```bash
-  npm run build && npx cap sync android
-  ```
-- **Phone/Tablet Browser**: Open `http://<YOUR_PC_IP>:8000` on Wi-Fi and tap **Install App**.
+---
 
-### iOS (iPhone & iPad)
-- **PWA (No Mac required)**: Open `http://<YOUR_PC_IP>:8000` in Safari → tap **Share** → **Add to Home Screen**.
-- **Native Xcode Build (macOS)**:
-  ```bash
-  npm run build && npx cap add ios && npx cap open ios
-  ```
+## API Reference
+
+| Endpoint | Description |
+| :--- | :--- |
+| `GET /api/health` | Service health check |
+| `GET /api/home` | Trending charts & home recommendations |
+| `GET /api/search?q=...&filter=...` | Search songs, artists, albums, playlists |
+| `GET /api/album/{browse_id}` | Album metadata & tracklist |
+| `GET /api/playlist/{playlist_id}` | Playlist metadata & tracklist |
+| `GET /api/artist/{channel_id}` | Artist profile, top songs & discography |
+| `GET /api/watch/{video_id}` | Up-next radio recommendations |
+| `GET /api/synced-lyrics` | Synced LRC lyrics via LRCLIB (with YTM fallback) |
+| `GET /api/sponsorblock/{video_id}` | SponsorBlock non-music skip segments |
+| `GET /api/audio/{video_id}` | Range-supported ad-free audio stream |
+| `GET /api/video/{video_id}` | Range-supported HD video stream |
+| `GET /api/download/{video_id}` | Direct audio file download |
+
+---
+
+## Contributing & License
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.  
+Licensed under the [MIT License](LICENSE).

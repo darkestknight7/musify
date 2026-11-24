@@ -504,6 +504,7 @@ def _extract_audio_url(video_id: str) -> tuple[str, str, dict]:
         "no_warnings": True,
         "noplaylist": True,
         "extract_flat": False,
+        "extractor_args": {"youtube": {"player_client": ["tv", "web"]}},
         "js_runtimes": {"node": {}},
         "remote_components": ["ejs:github"],
     }
@@ -640,6 +641,7 @@ def _extract_video_url(video_id: str) -> tuple[str, str, str, dict]:
         "quiet": True,
         "no_warnings": True,
         "noplaylist": True,
+        "extractor_args": {"youtube": {"player_client": ["tv", "web"]}},
         "js_runtimes": {"node": {}},
         "remote_components": ["ejs:github"],
     }

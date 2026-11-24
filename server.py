@@ -23,8 +23,8 @@ app.add_middleware(
 ytmusic = YTMusic()
 
 # Simple in-memory caches
-_stream_cache: dict[str, tuple[str, str, float]] = {}       # video_id -> (url, mime_type, expires_at)
-_video_cache: dict[str, tuple[str, str, str, float]] = {}   # video_id -> (url, mime_type, quality, expires_at)
+_stream_cache: dict[str, tuple[str, str, dict, float]] = {}       # video_id -> (url, mime_type, headers, expires_at)
+_video_cache: dict[str, tuple[str, str, str, dict, float]] = {}   # video_id -> (url, mime_type, quality, headers, expires_at)
 _home_cache: Optional[tuple[dict, float]] = None
 STREAM_CACHE_TTL = 1800  # 30 minutes
 HOME_CACHE_TTL = 600     # 10 minutes
@@ -492,11 +492,11 @@ async def get_sponsorblock_segments(video_id: str):
     return {"segments": []}
 
 
-def _extract_audio_url(video_id: str) -> tuple[str, str]:
+def _extract_audio_url(video_id: str) -> tuple[str, str, dict]:
     now = time.time()
     cached = _stream_cache.get(video_id)
-    if cached and now < cached[2]:
-        return cached[0], cached[1]
+    if cached and now < cached[3]:
+        return cached[0], cached[1], cached[2]
 
     ydl_opts = {
         "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
@@ -512,6 +512,7 @@ def _extract_audio_url(video_id: str) -> tuple[str, str]:
         info = ydl.extract_info(url, download=False)
         stream_url = info.get("url")
         ext = info.get("ext", "m4a")
+        http_headers = dict(info.get("http_headers") or {})
         if not stream_url:
             # Fallback pick from formats
             formats = info.get("formats", [])
@@ -520,6 +521,8 @@ def _extract_audio_url(video_id: str) -> tuple[str, str]:
                 best = sorted(audio_formats, key=lambda f: f.get("abr") or 0, reverse=True)[0]
                 stream_url = best["url"]
                 ext = best.get("ext", "m4a")
+                if best.get("http_headers"):
+                    http_headers = dict(best["http_headers"])
 
         if not stream_url:
             raise HTTPException(status_code=404, detail="No audio stream found")
@@ -532,20 +535,18 @@ def _extract_audio_url(video_id: str) -> tuple[str, str]:
             "mp3": "audio/mpeg",
         }
         mime_type = mime_map.get(ext, "audio/mp4")
-        _stream_cache[video_id] = (stream_url, mime_type, now + STREAM_CACHE_TTL)
-        return stream_url, mime_type
+        _stream_cache[video_id] = (stream_url, mime_type, http_headers, now + STREAM_CACHE_TTL)
+        return stream_url, mime_type, http_headers
 
 
 @app.get("/api/audio/{video_id}")
 async def stream_audio(video_id: str, request: Request):
     try:
-        stream_url, mime_type = await asyncio.to_thread(_extract_audio_url, video_id)
+        stream_url, mime_type, ydl_headers = await asyncio.to_thread(_extract_audio_url, video_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Stream extraction failed: {e}")
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-    }
+    headers = dict(ydl_headers)
     range_header = request.headers.get("range")
     if range_header:
         headers["Range"] = range_header
@@ -559,7 +560,10 @@ async def stream_audio(video_id: str, request: Request):
         await client.aclose()
         # Invalidate cache and retry once
         _stream_cache.pop(video_id, None)
-        stream_url, mime_type = await asyncio.to_thread(_extract_audio_url, video_id)
+        stream_url, mime_type, ydl_headers = await asyncio.to_thread(_extract_audio_url, video_id)
+        headers = dict(ydl_headers)
+        if range_header:
+            headers["Range"] = range_header
         client = httpx.AsyncClient(timeout=30.0, follow_redirects=True)
         req = client.build_request("GET", stream_url, headers=headers)
         upstream = await client.send(req, stream=True)
@@ -591,16 +595,14 @@ async def stream_audio(video_id: str, request: Request):
 @app.get("/api/download/{video_id}")
 async def download_audio(video_id: str, title: str = "track"):
     try:
-        stream_url, mime_type = await asyncio.to_thread(_extract_audio_url, video_id)
+        stream_url, mime_type, ydl_headers = await asyncio.to_thread(_extract_audio_url, video_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Download extraction failed: {e}")
 
     ext = "webm" if "webm" in mime_type else "ogg" if "ogg" in mime_type else "m4a"
     safe_title = "".join(c for c in title if c.isalnum() or c in " -_()").strip() or video_id
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-    }
+    headers = dict(ydl_headers)
     client = httpx.AsyncClient(timeout=60.0, follow_redirects=True)
     req = client.build_request("GET", stream_url, headers=headers)
     upstream = await client.send(req, stream=True)
@@ -627,11 +629,11 @@ async def download_audio(video_id: str, title: str = "track"):
     )
 
 
-def _extract_video_url(video_id: str) -> tuple[str, str, str]:
+def _extract_video_url(video_id: str) -> tuple[str, str, str, dict]:
     now = time.time()
     cached = _video_cache.get(video_id)
-    if cached and now < cached[3]:
-        return cached[0], cached[1], cached[2]
+    if cached and now < cached[4]:
+        return cached[0], cached[1], cached[2], cached[3]
 
     ydl_opts = {
         "format": "best[ext=mp4][vcodec!=none][acodec!=none]/best[vcodec!=none][acodec!=none]/best",
@@ -648,6 +650,7 @@ def _extract_video_url(video_id: str) -> tuple[str, str, str]:
         ext = info.get("ext", "mp4")
         height = info.get("height")
         quality = f"{height}p" if height else "HD"
+        http_headers = dict(info.get("http_headers") or {})
 
         if not stream_url:
             formats = info.get("formats", [])
@@ -660,19 +663,21 @@ def _extract_video_url(video_id: str) -> tuple[str, str, str]:
                 stream_url = best["url"]
                 ext = best.get("ext", "mp4")
                 quality = f"{best.get('height')}p" if best.get("height") else "HD"
+                if best.get("http_headers"):
+                    http_headers = dict(best["http_headers"])
 
         if not stream_url:
             raise HTTPException(status_code=404, detail="No video stream found")
 
         mime_type = "video/webm" if ext == "webm" else "video/mp4"
-        _video_cache[video_id] = (stream_url, mime_type, quality, now + STREAM_CACHE_TTL)
-        return stream_url, mime_type, quality
+        _video_cache[video_id] = (stream_url, mime_type, quality, http_headers, now + STREAM_CACHE_TTL)
+        return stream_url, mime_type, quality, http_headers
 
 
 @app.get("/api/video-info/{video_id}")
 async def get_video_info(video_id: str):
     try:
-        _, mime_type, quality = await asyncio.to_thread(_extract_video_url, video_id)
+        _, mime_type, quality, _ = await asyncio.to_thread(_extract_video_url, video_id)
         return {"available": True, "quality": quality, "mimeType": mime_type}
     except Exception:
         return {"available": False, "quality": None, "mimeType": None}
@@ -681,13 +686,11 @@ async def get_video_info(video_id: str):
 @app.get("/api/video/{video_id}")
 async def stream_video(video_id: str, request: Request):
     try:
-        stream_url, mime_type, _ = await asyncio.to_thread(_extract_video_url, video_id)
+        stream_url, mime_type, _, ydl_headers = await asyncio.to_thread(_extract_video_url, video_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Video extraction failed: {e}")
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-    }
+    headers = dict(ydl_headers)
     range_header = request.headers.get("range")
     if range_header:
         headers["Range"] = range_header
@@ -700,7 +703,10 @@ async def stream_video(video_id: str, request: Request):
         await upstream.aclose()
         await client.aclose()
         _video_cache.pop(video_id, None)
-        stream_url, mime_type, _ = await asyncio.to_thread(_extract_video_url, video_id)
+        stream_url, mime_type, _, ydl_headers = await asyncio.to_thread(_extract_video_url, video_id)
+        headers = dict(ydl_headers)
+        if range_header:
+            headers["Range"] = range_header
         client = httpx.AsyncClient(timeout=30.0, follow_redirects=True)
         req = client.build_request("GET", stream_url, headers=headers)
         upstream = await client.send(req, stream=True)

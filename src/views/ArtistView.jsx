@@ -13,7 +13,10 @@ export default function ArtistView({
   currentTrack,
   isPlaying,
   likedIds,
+  offlineIds = new Set(),
+  savingIds = new Set(),
   onToggleLike,
+  onSaveOffline,
   playlists,
   onAddToPlaylist,
   onNavigate,
@@ -130,9 +133,12 @@ export default function ArtistView({
                 isCurrent={currentTrack?.videoId === track.videoId}
                 isPlaying={isPlaying}
                 isLiked={likedIds.has(track.videoId)}
+                isOffline={offlineIds.has(track.videoId)}
+                isSavingOffline={savingIds.has(track.videoId)}
                 playlists={playlists}
                 onPlay={() => onPlayTrack(track, artist.topSongs)}
                 onToggleLike={onToggleLike}
+                onSaveOffline={onSaveOffline}
                 onAddToPlaylist={onAddToPlaylist}
                 onNavigate={onNavigate}
               />

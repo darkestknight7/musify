@@ -52,6 +52,7 @@ export default function App() {
   const [repeat, setRepeat] = useState('off'); // 'off' | 'all' | 'one'
   const [rightPanel, setRightPanel] = useState(null); // null | 'lyrics' | 'queue'
   const [videoMode, setVideoMode] = useState(false);
+  const [videoQuality, setVideoQuality] = useState(null);
   const [immersiveOpen, setImmersiveOpen] = useState(false);
   const [analyserNode, setAnalyserNode] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -410,7 +411,10 @@ export default function App() {
                 currentTrack={currentTrack}
                 isPlaying={isPlaying}
                 likedIds={likedIds}
+                offlineIds={offlineIds}
+                savingIds={savingIds}
                 onToggleLike={toggleLike}
+                onSaveOffline={handleSaveOffline}
                 playlists={playlists}
                 onAddToPlaylist={handleAddToPlaylist}
                 onNavigate={navigate}
@@ -450,6 +454,7 @@ export default function App() {
         onSeekTo={(sec) => seekFnRef.current && seekFnRef.current(sec)}
         videoMode={videoMode}
         onToggleVideoMode={setVideoMode}
+        videoQuality={videoQuality}
         videoRef={videoRef}
         analyserNode={analyserNode}
         isOffline={currentTrack ? offlineIds.has(currentTrack.videoId) : false}
@@ -500,6 +505,7 @@ export default function App() {
           setToast(msg);
           setTimeout(() => setToast(null), 3000);
         }}
+        onVideoQualityChange={setVideoQuality}
       />
 
       {/* Mobile Bottom Navigation (< md) */}

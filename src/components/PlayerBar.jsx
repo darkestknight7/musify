@@ -68,6 +68,7 @@ export default function PlayerBar({
   onTimeSync,
   onRegisterSeek,
   onSponsorSkipToast,
+  onVideoQualityChange,
 }) {
   const audioRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -171,7 +172,9 @@ export default function PlayerBar({
     skippedSegmentsRef.current = new Set();
 
     fetchVideoInfo(currentTrack.videoId).then((info) => {
-      if (info?.available) setVideoQuality(info.quality || 'HD');
+      const q = info?.available ? info.quality || 'HD' : null;
+      setVideoQuality(q);
+      if (onVideoQualityChange) onVideoQualityChange(q);
     });
     if (sponsorBlockEnabled) {
       fetchSponsorBlock(currentTrack.videoId).then((res) => {
@@ -191,24 +194,32 @@ export default function PlayerBar({
     }
   }, [activeMediaEl, onRegisterSeek]);
 
+  const prevTrackIdRef = useRef(null);
+
   // Load track (Offline IndexedDB first, then online audio or HD video)
   useEffect(() => {
     if (!currentTrack) return;
     let cancelled = false;
     let objectUrl = null;
 
+    const isSameTrack = prevTrackIdRef.current === currentTrack.videoId;
+    prevTrackIdRef.current = currentTrack.videoId;
+
     const loadSource = async () => {
       const targetEl = videoMode && immersiveOpen ? videoRef.current : audioRef.current;
       const otherEl = videoMode && immersiveOpen ? audioRef.current : videoRef.current;
+      const resumeTime = isSameTrack && otherEl && !isNaN(otherEl.currentTime) ? otherEl.currentTime : 0;
+
       if (otherEl) {
         otherEl.pause();
         otherEl.removeAttribute('src');
       }
       if (!targetEl) return;
 
-      const resumeTime = 0;
-      setCurrentTime(0);
-      setDuration(currentTrack.durationSeconds || 0);
+      if (!isSameTrack) {
+        setCurrentTime(0);
+        setDuration(currentTrack.durationSeconds || 0);
+      }
       setIsBuffering(true);
 
       let srcUrl = null;

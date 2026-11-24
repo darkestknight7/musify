@@ -36,8 +36,6 @@ export default function ImmersivePlayer({
   isSavingOffline,
   onSaveOffline,
   onMediaEvents,
-  volume,
-  playbackRate,
 }) {
   const canvasRef = useRef(null);
   const activeLineRef = useRef(null);
@@ -330,8 +328,6 @@ export default function ImmersivePlayer({
                   onCanPlay={onMediaEvents.onCanPlay}
                   onPlaying={onMediaEvents.onPlaying}
                   onEnded={onMediaEvents.onEnded}
-                  volume={volume}
-                  playbackRate={playbackRate}
                 />
               </div>
             ) : layout === 'waveform' ? (

@@ -504,6 +504,8 @@ def _extract_audio_url(video_id: str) -> tuple[str, str]:
         "no_warnings": True,
         "noplaylist": True,
         "extract_flat": False,
+        "js_runtimes": {"node": {}},
+        "remote_components": ["ejs:github"],
     }
     url = f"https://www.youtube.com/watch?v={video_id}"
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -636,6 +638,8 @@ def _extract_video_url(video_id: str) -> tuple[str, str, str]:
         "quiet": True,
         "no_warnings": True,
         "noplaylist": True,
+        "js_runtimes": {"node": {}},
+        "remote_components": ["ejs:github"],
     }
     url = f"https://www.youtube.com/watch?v={video_id}"
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -734,8 +738,14 @@ if os.path.isdir(_dist_dir):
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
-        candidate = os.path.join(_dist_dir, full_path)
-        if full_path and os.path.isfile(candidate):
+        if full_path.startswith("api/") or full_path == "api":
+            raise HTTPException(status_code=404, detail="API endpoint not found")
+        candidate = os.path.abspath(os.path.join(_dist_dir, full_path))
+        if (
+            full_path
+            and os.path.commonpath([os.path.abspath(_dist_dir), candidate]) == os.path.abspath(_dist_dir)
+            and os.path.isfile(candidate)
+        ):
             return FileResponse(candidate)
         return FileResponse(os.path.join(_dist_dir, "index.html"))
 

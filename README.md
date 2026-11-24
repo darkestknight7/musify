@@ -76,16 +76,22 @@ npm run build
 
 ## Access From Phones & Tablets (Android / iOS)
 
-### Option A: Public HTTPS Link (Works on Any Network / Mobile Data)
-Start Musify with the `-Public` / `--public` flag to generate an instant HTTPS URL for phones and tablets:
+> **Important:** Do **not** open `127.0.0.1:8000` on your phone or tablet — `127.0.0.1` always refers to the device itself, not your PC. Use one of the options below instead:
+
+### Option A: One-Command Public HTTPS Link (Works on Any Network / Mobile Data)
+Run Musify with `--public` to automatically generate an `https://...lhr.life` link you can open on any phone or tablet:
+- **Python (Any OS):** `python server.py --public`
 - **Windows:** `.\start_musify.ps1 -Public`
 - **macOS / Linux:** `./start_musify.sh --public`
 
-Open the generated `https://...lhr.life` link on your phone:
+Open the printed `https://...lhr.life` link on your phone:
 - **Android (Chrome):** Tap `⋮` → **Install app**
 - **iPhone / iPad (Safari):** Tap **Share** → **Add to Home Screen**
 
-### Option B: Native Android APK
+### Option B: Same Wi-Fi Network
+When you start `python server.py`, it prints your PC's local Wi-Fi URL (e.g. `http://192.168.1.x:8000`). Open that URL on any phone/tablet connected to the same Wi-Fi.
+
+### Option C: Native Android APK
 Download the pre-built **`Musify-Android-APK`** (`app-debug.apk`) artifact from the [GitHub Actions](https://github.com/darkestknight7/musify/actions) tab, or sync locally:
 ```bash
 npm run build

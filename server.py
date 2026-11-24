@@ -741,5 +741,44 @@ if os.path.isdir(_dist_dir):
 
 
 if __name__ == "__main__":
+    import argparse
+    import socket
+    import subprocess
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    parser = argparse.ArgumentParser(description="Musify Backend & Web Server")
+    parser.add_argument("--port", type=int, default=8000, help="Port to listen on")
+    parser.add_argument(
+        "--public",
+        action="store_true",
+        help="Start a public HTTPS tunnel (localhost.run) for phones & tablets",
+    )
+    args = parser.parse_args()
+
+    try:
+        lan_ip = socket.gethostbyname(socket.gethostname())
+    except Exception:
+        lan_ip = "YOUR_PC_IP"
+
+    print(f"\n  Musify PC URL:       http://127.0.0.1:{args.port}")
+    print(f"  Same Wi-Fi Devices:  http://{lan_ip}:{args.port}")
+    print("  (Do NOT open 127.0.0.1 on your phone — use the Wi-Fi IP or --public HTTPS link)\n")
+
+    tunnel_proc = None
+    if args.public:
+        print("  Starting public HTTPS tunnel for phones & tablets...")
+        tunnel_proc = subprocess.Popen(
+            [
+                "ssh",
+                "-o", "StrictHostKeyChecking=no",
+                "-o", "ServerAliveInterval=30",
+                "-R", f"80:127.0.0.1:{args.port}",
+                "nokey@localhost.run",
+            ]
+        )
+
+    try:
+        uvicorn.run(app, host="0.0.0.0", port=args.port)
+    finally:
+        if tunnel_proc:
+            tunnel_proc.terminate()
